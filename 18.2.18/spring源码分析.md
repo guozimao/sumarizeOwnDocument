@@ -78,10 +78,24 @@
 
   特点：执行流程一样，但中间有些步骤不同。
 
-  ​
+##### 4、springMVC的发展历程
 
-  ​
+​	java一开始有三种应用形式J2ME(mobile)、J2SE(Standard)自已开发出来自己玩（Swing开发，与C#相比多了很多配置,C#占有大量windows用户）、J2EE(Enterprise,只需在J2SE上加一个URL''统一资源定位符")，其中servlet就是其实现，servlet是server Applet,一般来说，加上servlet-api.jar的J2SE就是J2EE。容器就是用来装东西的，装servlet,servlet有doGet、doPost。
 
-  ​
+​	后来发现，随着业务变得复杂，实现太多servlet很难管理，所以才有mvc框架的出现，比如structs(实现一个自已的容器,把用户请求的url映射成某一个类(普通类),比如web/user!getList.do),你只要配置一个Filter,用来拦截所有url请求.
 
-  ​
+​	后来spring才慢慢发展自已的mvc框架,目的是不用反复的修改web.xml, 把每一个URL变成一个类的某个方法,传参变为一个自动ORM(变化开发)
+
+##### 5、spring源码的入口
+
+- BeanFactory是spring源码的入口，一切来自于BeanFactory
+- IOC容器的初始化包括BeanDefinition的Resource定位、载入和注册三个基本过程。
+- 在spring框架里，只要是以do开头的方法，都是具体干法的方法
+- BeanDefinition来保存xml信息
+- IOC容器就是一个map
+- 定位（找到Resources）、载入（生成BeanDefintion）、注册（put到map中），原则：宁可前面的过程复杂，最终要保证数据的有效性
+- BeadFactory是生产Bean的工厂,而FactoryBead是Spring的Factory new出来的Bean
+- DI(依赖注入),代码入口BeadFatory#getBean。1、获取BeanDefinition信息 2、调用Factory的createBean()方法。createBeanInstance根据情况可能用到JDK代理,Cglib，依赖关系List、Array、Map;populateBean注入,做类型转换
+- spring创建出来的Bean一般是用代理模式生成的（cglib），除了用原型模式之外。好处：拥有这个代理类的控制权，提高了灵活度（做切面）
+- 真正的IOC容器是factoryBeanObjectCache(ConcurrentHashMap<String,Object(Beandefinition)>)
+
