@@ -93,9 +93,13 @@
 - 在spring框架里，只要是以do开头的方法，都是具体干法的方法
 - BeanDefinition来保存xml信息
 - IOC容器就是一个map
-- 定位（找到Resources）、载入（生成BeanDefintion）、注册（put到map中），原则：宁可前面的过程复杂，最终要保证数据的有效性
+- 资源定位（配置文件）、载入（读取配置文件）、注册（把加载后的配置文件解释成BeanDefinition），原则：宁可前面的过程复杂，最终要保证数据的有效性
 - BeadFactory是生产Bean的工厂,而FactoryBead是Spring的Factory new出来的Bean
-- DI(依赖注入),代码入口BeadFatory#getBean。1、获取BeanDefinition信息 2、调用Factory的createBean()方法。createBeanInstance根据情况可能用到JDK代理,Cglib，依赖关系List、Array、Map;populateBean注入,做类型转换
+- DI(依赖注入),代码入口BeadFatory#getBean。
 - spring创建出来的Bean一般是用代理模式生成的（cglib），除了用原型模式之外。好处：拥有这个代理类的控制权，提高了灵活度（做切面）
 - 真正的IOC容器是factoryBeanObjectCache(ConcurrentHashMap<String,Object(Beandefinition)>)
+- IOC组成体系结构中，有一 个重要的东西是BeanFactory，而且它被另两个重要的类继承，ListAbleBeanFactory和HierarchicalBeanFactory。另外还有一个类ClassPathXmlApplicantionContext,IOC的所有功能基本都可以在这个类里找到。
+- 依赖注入。第一步，读取BeanDefinition中信息，获取其依赖关系；第二步，实例化（代理对象，对应create BeanInstance）；第三步，注入(对应populateBean)：设值
+- spring最核心的两个jar包，spring-bean.jar、spring-context.jar。spring-bean.jar定义了规范 ，而spring-context.jar 工厂的实现、DI的实现。另外spring-core.jar是最顶层的jar，所有的项目都要依赖的。
+- spring-aop是spring-aspects的上层建筑，而且它是从IOC中取得代理以后的对象，对每个方法进行重写，还加入一些切面调用所需要的东西。
 
