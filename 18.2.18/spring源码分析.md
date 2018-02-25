@@ -1,13 +1,19 @@
 # spring源码分析
 
-##### *1、IOC控制反转*
+
+
+##### 1、IOC控制反转
 
 - ioc容器（servlet）,存储javaBean
 - web容器存储servlet
 - 依赖注入（DI），对象之间的依赖关系，依赖链
   - setter方法注入
+
   - 构造器注入
+
   - 强制注入
+
+    ​
 
 ##### *2、AOP 面向切面编程*
 
@@ -18,6 +24,8 @@
 - 应用情景,如Authentication权限,Logging日志,Transactions Manager事务,lazy loaning懒加载,
 
   Context Process上下文处理,error handler错误跟踪(异常捕获机制),cache缓存处理
+
+  ​
 
 ##### *3、常用设计模式*
 
@@ -78,6 +86,8 @@
 
   特点：执行流程一样，但中间有些步骤不同。
 
+  ​
+
 ##### 4、springMVC的发展历程
 
 ​	java一开始有三种应用形式J2ME(mobile)、J2SE(Standard)自已开发出来自己玩（Swing开发，与C#相比多了很多配置,C#占有大量windows用户）、J2EE(Enterprise,只需在J2SE上加一个URL''统一资源定位符")，其中servlet就是其实现，servlet是server Applet,一般来说，加上servlet-api.jar的J2SE就是J2EE。容器就是用来装东西的，装servlet,servlet有doGet、doPost。
@@ -86,20 +96,47 @@
 
 ​	后来spring才慢慢发展自已的mvc框架,目的是不用反复的修改web.xml, 把每一个URL变成一个类的某个方法,传参变为一个自动ORM(变化开发)
 
-##### 5、spring源码的入口
+
+
+##### 5、spring的IOC和DI源码分析
 
 - BeanFactory是spring源码的入口，一切来自于BeanFactory
-- IOC容器的初始化包括BeanDefinition的Resource定位、载入和注册三个基本过程。
-- 在spring框架里，只要是以do开头的方法，都是具体干法的方法
-- BeanDefinition来保存xml信息
-- IOC容器就是一个map
-- 资源定位（配置文件）、载入（读取配置文件）、注册（把加载后的配置文件解释成BeanDefinition），原则：宁可前面的过程复杂，最终要保证数据的有效性
-- BeadFactory是生产Bean的工厂,而FactoryBead是Spring的Factory new出来的Bean
-- DI(依赖注入),代码入口BeadFatory#getBean。
-- spring创建出来的Bean一般是用代理模式生成的（cglib），除了用原型模式之外。好处：拥有这个代理类的控制权，提高了灵活度（做切面）
-- 真正的IOC容器是factoryBeanObjectCache(ConcurrentHashMap<String,Object(Beandefinition)>)
-- IOC组成体系结构中，有一 个重要的东西是BeanFactory，而且它被另两个重要的类继承，ListAbleBeanFactory和HierarchicalBeanFactory。另外还有一个类ClassPathXmlApplicantionContext,IOC的所有功能基本都可以在这个类里找到。
-- 依赖注入。第一步，读取BeanDefinition中信息，获取其依赖关系；第二步，实例化（代理对象，对应create BeanInstance）；第三步，注入(对应populateBean)：设值
-- spring最核心的两个jar包，spring-bean.jar、spring-context.jar。spring-bean.jar定义了规范 ，而spring-context.jar 工厂的实现、DI的实现。另外spring-core.jar是最顶层的jar，所有的项目都要依赖的。
-- spring-aop是spring-aspects的上层建筑，而且它是从IOC中取得代理以后的对象，对每个方法进行重写，还加入一些切面调用所需要的东西。
 
+- IOC容器的初始化包括BeanDefinition的Resource定位、载入和注册三个基本过程。
+
+- 在spring框架里，只要是以do开头的方法，都是具体干法的方法
+
+- BeanDefinition来保存xml信息
+
+- IOC容器就是一个map
+
+- 资源定位（配置文件）、载入（读取配置文件）、注册（把加载后的配置文件解释成BeanDefinition），原则：宁可前面的过程复杂，最终要保证数据的有效性
+
+- BeadFactory是生产Bean的工厂,而FactoryBead是Spring的Factory new出来的Bean
+
+- DI(依赖注入),代码入口BeadFatory#getBean。
+
+- spring创建出来的Bean一般是用代理模式生成的（cglib），除了用原型模式之外。好处：拥有这个代理类的控制权，提高了灵活度（做切面）
+
+- 真正的IOC容器是factoryBeanObjectCache(ConcurrentHashMap<String,Object(Beandefinition)>)
+
+- IOC组成体系结构中，有一 个重要的东西是BeanFactory，而且它被另两个重要的类继承，ListAbleBeanFactory和HierarchicalBeanFactory。另外还有一个类ClassPathXmlApplicantionContext,IOC的所有功能基本都可以在这个类里找到。
+
+- 依赖注入。第一步，读取BeanDefinition中信息，获取其依赖关系；第二步，实例化（代理对象，对应create BeanInstance）；第三步，注入(对应populateBean)：设值
+
+- spring最核心的两个jar包，spring-bean.jar、spring-context.jar。spring-bean.jar定义了规范 ，而spring-context.jar 工厂的实现、DI的实现。另外spring-core.jar是最顶层的jar，所有的项目都要依赖的。
+
+- do开头的方法是具体干活的方法
+
+- Spring 的单例是用Map来现实的,除非手动声明scope,prototype,每次get一次,就new一个
+
+- IOC判断，如果被代理的类实现了一个接口，那么默认用JDK代理，如果被代理的对象，没有实现任何接口，那就默认用CGlib
+
+  ​
+
+##### 6、spring的AOP
+
+- spring-aop是spring-aspects的上层建筑，而且它是从IOC中取得代理以后的对象，对每个方法进行重写，还加入一些切面调用所需要的东西。
+- 一个切面，就代表N个Bean的一个集合，这N个Bean它们都拥有共同点,所以它们组成一个切面
+- 通知(advice),利用了IOC的后置处理（方法拦截器，这是在AOP里面独有的）
+- 切入点，就是在切面中，某一个具体Bean中的某一个具体方法.还可以是进入切面内部的一个入口(主动调用方法)
