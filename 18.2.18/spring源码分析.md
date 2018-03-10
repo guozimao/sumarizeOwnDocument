@@ -137,6 +137,74 @@
 ##### 6、spring的AOP
 
 - spring-aop是spring-aspects的上层建筑，而且它是从IOC中取得代理以后的对象，对每个方法进行重写，还加入一些切面调用所需要的东西。
+
 - 一个切面，就代表N个Bean的一个集合，这N个Bean它们都拥有共同点,所以它们组成一个切面
+
 - 通知(advice),利用了IOC的后置处理（方法拦截器，这是在AOP里面独有的）
+
 - 切入点，就是在切面中，某一个具体Bean中的某一个具体方法.还可以是进入切面内部的一个入口(主动调用方法)
+
+- 分析源码的第一步，找到入口，也是从factory入手的，找到一个getBean的方法，这个方法就是用来获取一个代理以的bean。这里就跟IOC体系的getBean有异曲同工
+
+- AOP有启动的顺序在IOC容器启动（定位、载入、注册、初始化、注入）之后，AOP不用执行IOC创建对象的操作了
+
+- IOC已经是代理类了，那么AOP中，对代理类的二次操作是深操作， 它们的每一个动作都要被管控
+
+- AOP的整条链路的理解。1、加载配置信息，解析成AOPConfig。2、交给AopProxyFactory,调用creteAopProxy的方法 3、JdkDynamicAopProxy调用AdvisedSupport的getInterceptorsAndDynamicInterceptionAdvice方法 4、递归执行拦截器方法proceed()
+
+- IOC容器就是一个ConcurrentHashMap,而Aop的MethodInterceptor容器是List
+
+  ​
+
+##### 7、spring的jdbc
+
+1. SpringJdbc本身就是基于模板模式来开发的，JDBCTemplate
+
+2. orm就是把resultset映射成简单的java对象
+  - Hibenate优点：1、API丰富，可以实现无SQL操作（HQL）,为了兼容所有数据库（都会先解释为HQL）再由HQL翻译成SQL(当然，有支持直接执行SQL的API，为了考虑用户需要复杂性)，对所有数据库方言都支持得非常不错。2、ORM全自动化
+
+  - Mybatis优点：1、轻量级，性能好。2、SQL和java代码分离（sqlMap,把每一条SQL语句起一名字，作为Map的key保存）
+
+  - 自已要的框架（择其善者而从之，开发出一个合适自己的框架）：1、性能要好，是啥就是啥，不经过二次处理，2、单表操作实现NOSQL。3、ORM零配置实现自动化（利用反射机制，把字段和属性对应上，然后，自动实例化返回结果）。
+
+  - 原则：约定优于配置（保证代码健壮性）
+
+    - Dao原则：一个Dao只操作一张表
+    - 约定：修改和删除的是根据主键来操作的
+    - 约定：尽量使用单表操作，如果实在要多表操作，可以先把数据查出来放到内存，然后内存中进行计算
+    - 约定：支持读写分离
+    - 约定：支持分库分表
+    - 约定：ORM支持的类型操作原则上只认Java八大基本数据类型+String(降低复杂度)
+
+3. orm编写的过程
+
+   1、制定QueryRule规范，定义了很多查询规则的常量，定义了查询规则保存到方法。
+
+   2、提供一个抽象Dao类给用户去实现（基于单表操作，传两个泛型值，一个是主键，另一个实体类）。
+
+   3、把实体的配置信息解析成一个EntityOpertion对象，同时实现了ORM的自动化过程
+
+   4、在抽象的Dao调用查询方法，把QueryRule作为参数传入 。
+
+   作为一个框架来说，要给用户操作提供一个方便的窗口，就相当于spring这么强大的一个框架，对于用户使用来说，就是一个方法ClassPathXmlApplicantion app;  app.getBean() 搞定所有的操作。所以应该提供一个QueryRule搞定所有的查询操作，这就是所有框架的创造者需要考虑的，最经典之处
+
+   5、再将传入的QueryRule交给QueryRuleSqlBuilder构建出一个sql语句（被拆分了SQL）
+
+   6、拼接CRUD SQL语句
+
+   7、交给JdbcTemplate执行
+
+   8、调用EntityOperation的ORM过程
+
+   9、返回结果，对于用户来说，都是单表操作，而且规定了泛型，所以不需要做任何强制转换
+
+
+
+
+
+
+
+
+
+
+
